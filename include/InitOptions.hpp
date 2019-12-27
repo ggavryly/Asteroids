@@ -56,10 +56,10 @@ private:
 private:
 	uint16_t	_win_width;
 	uint16_t	_win_height;
-	uint16_t	_asteroids_num;
-	uint32_t	_ammo_num;
-	uint32_t	_map_width;
-	uint32_t	_map_height;
+	uint8_t		_asteroids_num;
+	uint8_t		_ammo_num;
+	uint16_t	_map_width;
+	uint16_t	_map_height;
 	float		_ability_chance;
 };
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "main.hpp"
 #include "SDL2/SDL.h"
-#include "../../SDL2/SDL_image.h"
+#include "../SDL2_image.framework/Headers/SDL_image.h"
 #include "InitOptions.hpp"
 
 static SDL_Renderer *g_renderer;
