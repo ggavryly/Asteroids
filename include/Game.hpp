@@ -49,7 +49,7 @@ private:
 	float b_dir_x, b_dir_y;
 	bool is_bullet_active;
 	
-	static const int sNumEnemies = 256;
+	static const int sNumEnemies = 1;
 	int e_x[sNumEnemies];
 	int e_y[sNumEnemies];
 	bool alive_[sNumEnemies];

@@ -41,8 +41,8 @@ FRAMEWORK_API Sprite* createSprite(const char* path)
 
 FRAMEWORK_API void destroySprite(Sprite* s)
 {
-	SDL_assert(g_framework_initialized);
-	SDL_assert(s);
+//	SDL_assert(g_framework_initialized);
+//	SDL_assert(s);
 	
 	if (s->tex)
 	{
@@ -106,12 +106,13 @@ static void draw_background(SDL_Renderer *renderer, int w, int h)
 	for (y = 0; y < h; y += rect.h) {
 		for (x = 0; x < w; x += rect.w) {
 			/* use an 8x8 checkerboard pattern */
-			i = (((x ^ y) >> 3) & 1);
+			i = (((x ^ y) >> 1) & 1);
 			SDL_SetRenderDrawColor(renderer, col[i].r, col[i].g, col[i].b, col[i].a);
 			
 			rect.x = x;
 			rect.y = y;
 			SDL_RenderFillRect(renderer, &rect);
+//			SDL_RenderPresent(renderer);
 		}
 	}
 }
@@ -301,10 +302,10 @@ bool Game::Init()
 	
 	showCursor(false);
 	
-	ava_ = createSprite("data/spaceship.png");
-	enemy_ = createSprite("data/small_asteroid.png");
-	reticle_ = createSprite("data/circle.tga");
-	bullet_ = createSprite("data/bullet.png");
+	ava_ = createSprite("../data/spaceship.png");
+	enemy_ = createSprite("../data/small_asteroid.png");
+	reticle_ = createSprite("../data/circle.tga");
+	bullet_ = createSprite("../data/bullet.png");
 	
 	if (!reticle_ || !ava_ || ! enemy_ || !reticle_ || !bullet_)
 		return false;
