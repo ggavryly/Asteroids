@@ -1,5 +1,4 @@
 #include "Game.hpp"
-
 /*
  * structure declarations
  */
@@ -11,6 +10,16 @@ public:
 	int w, h;
 	SDL_Texture* tex;
 };
+
+FRAMEWORK_API double radianToAngle(double radian)
+{
+	return radian * 180 / M_PI;
+}
+
+FRAMEWORK_API double angleToRadian(double angle)
+{
+	return 180 / (angle * M_PI);
+}
 
 FRAMEWORK_API Sprite* createSprite(const char* path)
 {
@@ -54,7 +63,7 @@ FRAMEWORK_API void destroySprite(Sprite* s)
 
 FRAMEWORK_API void getSpriteSize(Sprite* s, int& w, int &h)
 {
-	SDL_assert(s);
+//	SDL_assert(s);
 	w = s->w;
 	h = s->h;
 }
@@ -73,10 +82,20 @@ FRAMEWORK_API void drawSprite(Sprite* sprite, int x, int y)
 	SDL_RenderCopy(g_renderer, sprite->tex, NULL, &r);
 }
 
-FRAMEWORK_API void getScreenSize(int& w, int &h)
+FRAMEWORK_API void drawSpriteAngle(Sprite *sprite,int x, int y, double angle)
 {
 	SDL_assert(g_framework_initialized);
 	SDL_assert(g_renderer);
+	SDL_assert(sprite);
+	
+	SDL_Rect renderQuad = {x, y, sprite->w, sprite->h};
+	SDL_RenderCopyEx(g_renderer, sprite->tex, nullptr, &renderQuad, angle, nullptr, SDL_FLIP_NONE);
+}
+
+FRAMEWORK_API void getScreenSize(int& w, int &h)
+{
+//	SDL_assert(g_framework_initialized);
+//	SDL_assert(g_renderer);
 	
 	SDL_Rect viewport;
 	SDL_RenderGetViewport(g_renderer, &viewport);
@@ -140,6 +159,7 @@ FRAMEWORK_API int run(Framework* framework)
 	SDL_Window *window;
 	Uint32 flags;
 	int done;
+	bool event_check = false;
 	SDL_Event event;
 	
 	for (int i = 0; i < (int)FRKey::COUNT; ++i)
@@ -152,9 +172,10 @@ FRAMEWORK_API int run(Framework* framework)
 	bool fullscreen;
 	GFramework->PreInit(g_width, g_height, fullscreen);
 	
+	SDL_ShowCursor(SDL_ENABLE);
 	flags = SDL_WINDOW_HIDDEN;
 	if (fullscreen) {
-		SDL_ShowCursor(0);
+		SDL_ShowCursor(SDL_ENABLE);
 		flags |= SDL_WINDOW_FULLSCREEN;
 	}
 	
@@ -176,7 +197,6 @@ FRAMEWORK_API int run(Framework* framework)
 		
 		g_framework_initialized = true;
 		
-		
 		if (!GFramework->Init())
 		{
 			fprintf(stderr, "Framework::Init failed\n");
@@ -185,22 +205,22 @@ FRAMEWORK_API int run(Framework* framework)
 		}
 		
 		done = 0;
-		while ( ! done ) {
+		while ( ! done )
+		{
 			while ( SDL_PollEvent(&event) ) {
 				switch (event.type) {
 					case SDL_KEYUP:
-						switch (event.key.keysym.sym) {
+						event_check = false;
+						switch (event.key.keysym.sym)
+						{
 							case SDLK_RIGHT:
 							case SDLK_LEFT:
 							case SDLK_DOWN:
 							case SDLK_UP:
 							{
 								int key_index = (event.key.keysym.sym - SDLK_RIGHT);
-								if (GKeyState[key_index])
-								{
-									GFramework->onKeyReleased((FRKey)key_index);
-									GKeyState[key_index] = false;
-								}
+								GFramework->onKeyReleased((FRKey)key_index);
+								GKeyState[key_index] = false;
 								break;
 							}
 							case SDLK_ESCAPE:
@@ -211,23 +231,23 @@ FRAMEWORK_API int run(Framework* framework)
 						}
 						break;
 					case SDL_KEYDOWN:
-						switch (event.key.keysym.sym) {
+						event_check = true;
+						switch (event.key.keysym.sym)
+						{
 							case SDLK_RIGHT:
 							case SDLK_LEFT:
 							case SDLK_DOWN:
 							case SDLK_UP:
 							{
 								int key_index = (event.key.keysym.sym - SDLK_RIGHT);
-								if (!GKeyState[key_index])
-								{
-									GFramework->onKeyPressed((FRKey)key_index);
-									GKeyState[key_index] = true;
-								}
+								GFramework->onKeyPressed((FRKey)key_index);
+								GKeyState[key_index] = true;
+								std::cout << "PRESS" << std::endl;
 							}
 								break;
-							
 							default:
 								break;
+							
 						}
 						break;
 					case SDL_MOUSEBUTTONDOWN:
@@ -250,6 +270,8 @@ FRAMEWORK_API int run(Framework* framework)
 						break;
 				}
 			}
+			if (!event_check)
+				GFramework->onKeyPressed(FRKey::COUNT);
 			
 			SDL_RenderClear(g_renderer);
 			
@@ -261,7 +283,6 @@ FRAMEWORK_API int run(Framework* framework)
 			SDL_RenderClear(g_renderer);
 			
 			done |= GFramework->Tick() ? 1 : 0;
-			
 			SDL_RenderPresent(g_renderer);
 			
 			SDL_Delay(1);
@@ -290,8 +311,8 @@ Game::~Game()
 
 void Game::PreInit(int& width, int& height, bool& fullscreen)
 {
-	width = 1024;
-	height = 768;
+	width = 1000;
+	height = 1000;
 	fullscreen = false;
 }
 bool Game::Init()
@@ -315,6 +336,8 @@ bool Game::Init()
 	getSpriteSize(reticle_, rs_w, rs_h);
 	getSpriteSize(bullet_, bs_w, bs_h);
 	
+	
+	player_ = new Player(ava_);
 	for (int i = 0; i < sNumEnemies; i++)
 	{
 		e_x[i] = rand() % sx;
@@ -346,7 +369,7 @@ bool Game::Tick() {
 	
 	drawTestBackground();
 	
-	drawSprite(ava_, ava_pos_x - as_w / 2, ava_pos_y - as_h / 2);
+	drawSpriteAngle(ava_, player_->pos.x - as_w / 2,  player_->pos.y - as_h / 2, player_->directionChoose(Vector(last_mouse_x, last_mouse_y)));
 	
 	bool should_exit = true;
 	for (int i = 0; i < sNumEnemies; ++i)
@@ -360,7 +383,6 @@ bool Game::Tick() {
 	}
 	
 	drawSprite(reticle_, r_x - rs_w / 2, r_y - rs_h / 2);
-	
 	if (is_bullet_active)
 	{
 		const float speed = 1.5f;
@@ -382,17 +404,19 @@ bool Game::Tick() {
 	{
 		drawSprite(bullet_, (int)b_x - bs_w / 2, (int)b_y - bs_h / 2);
 	}
-	
 	return should_exit;
 }
 
-void Game::onMouseMove(int x, int y, int xrelative, int yrelative) {
-	
+void Game::onMouseMove(int x, int y, int xrelative, int yrelative)
+{
+	last_mouse_x = x;
+	last_mouse_y = y;
 	r_x = x;
 	r_y = y;
 }
 
-void Game::onMouseButtonClick(FRMouseButton button, bool isReleased) {
+void Game::onMouseButtonClick(FRMouseButton button, bool isReleased)
+{
 	
 	float rx = (float)r_x;
 	float ry = (float)r_y;
@@ -438,7 +462,7 @@ void Game::onKeyPressed(FRKey k) {
 }
 void Game::onKeyReleased(FRKey k) {
 	
-	//onKey(k);
+	onKey(k);
 }
 
 void Game::onKey(FRKey k)
@@ -446,27 +470,20 @@ void Game::onKey(FRKey k)
 	switch (k)
 	{
 		case FRKey::LEFT:
-			ava_pos_x -= 10;
+			player_->movement(LEFT);
 			break;
 		case FRKey::RIGHT:
-			ava_pos_x += 10;
+			player_->movement(RIGHT);
 			break;
 		case FRKey::DOWN:
-			ava_pos_y += 10;
+			player_->movement(DOWN);
 			break;
 		case FRKey::UP:
-			ava_pos_y -= 10;
+			player_->movement(UP);
 			break;
+		case FRKey::COUNT:
+			player_->movement(NOTHING);
 	}
-	
-	ava_pos_x = ava_pos_x < 0 ? 0 : ava_pos_x;
-	ava_pos_y = ava_pos_y < 0 ? 0 : ava_pos_y;
-	
-	int sx, sy;
-	getScreenSize(sx, sy);
-	
-	ava_pos_x = ava_pos_x > sx ? sx : ava_pos_x;
-	ava_pos_y = ava_pos_y > sy ? sy : ava_pos_y;
 }
 const char* Game::GetTitle()
 {

@@ -7,3 +7,7 @@
 #include <limits>
 #include <regex>
 #include <exception>
+#include <vector>
+
+#define X 0
+#define Y 1

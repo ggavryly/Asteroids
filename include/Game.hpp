@@ -1,13 +1,15 @@
 #pragma once
-#include "main.hpp"
 #include "SDL2/SDL.h"
 #include "../SDL2_image.framework/Headers/SDL_image.h"
 #include "InitOptions.hpp"
+#include "Player.hpp"
 
 static SDL_Renderer *g_renderer;
 static int g_width = 800;
 static int g_height = 600;
 static int g_framework_initialized = false;
+static double g_angle = 0.0;
+static bool move = false;
 
 class Game : public Framework
 {
@@ -30,6 +32,7 @@ public:
 public:
 	InitOptions	*init_;
 private:
+	Player	*player_;
 	Sprite* ava_;
 	Sprite* enemy_;
 	Sprite* reticle_;
@@ -54,7 +57,7 @@ private:
 	int e_y[sNumEnemies];
 	bool alive_[sNumEnemies];
 	
-	int last_mouse_x;
-	int last_mouse_y;
+	int last_mouse_x = 500;
+	int last_mouse_y = 0;
 };
 

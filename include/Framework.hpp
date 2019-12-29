@@ -21,7 +21,8 @@ FRAMEWORK_API Sprite* createSprite(const char* path);
 FRAMEWORK_API void drawSprite(Sprite*, int x, int y);
 FRAMEWORK_API void getSpriteSize(Sprite* s, int& w, int &h);
 FRAMEWORK_API void destroySprite(Sprite* s);
-
+FRAMEWORK_API double angleToRadian(double angle);
+FRAMEWORK_API double radianToAngle(double radian);
 FRAMEWORK_API void drawTestBackground();
 
 FRAMEWORK_API void getScreenSize(int& w, int &h);
