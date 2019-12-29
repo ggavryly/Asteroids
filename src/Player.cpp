@@ -54,14 +54,15 @@ void Player::movement(ObjectMove m)
 			break;
 	}
 	
-	pos.x = pos.x < 0 ? 0 : pos.x;
-	pos.y = pos.y < 0 ? 0 : pos.y;
-	
 	int sx, sy;
 	getScreenSize(sx, sy);
 	
-	pos.x = pos.x > sx ? sx : pos.x;
-	pos.y = pos.y > sy ? sy : pos.y;
+	pos.x = pos.x < 0 ? sx : pos.x;
+	pos.y = pos.y < 0 ? sy : pos.y;
+	
+	
+	pos.x = pos.x > sx ? 0 : pos.x;
+	pos.y = pos.y > sy ? 0 : pos.y;
 //	std::cout << "pos_x = " << pos.x << std::endl;
 //	std::cout << "pos_y = " << pos.y << std::endl << std::endl;
 //	std::cout << "dir_x = " << dir.x << std::endl;
