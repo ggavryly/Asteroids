@@ -1,8 +1,10 @@
 #pragma once
+#include "main.hpp"
 #include "SDL2/SDL.h"
 #include "../SDL2_image.framework/Headers/SDL_image.h"
 #include "InitOptions.hpp"
 #include "Player.hpp"
+#include "Enemy.hpp"
 
 static SDL_Renderer *g_renderer;
 static int g_width = 800;
@@ -24,6 +26,7 @@ public:
 	bool Tick() override;
 	void onMouseMove(int x, int y, int xrelative, int yrelative) override;
 	void onMouseButtonClick(FRMouseButton button, bool isReleased) override;
+	void unitsCollision(void);
 	void onKeyPressed(FRKey k) override;
 	void onKeyReleased(FRKey k) override;
 	void onKey(FRKey k);
@@ -33,6 +36,7 @@ public:
 	InitOptions	*init_;
 private:
 	Player	*player_;
+	std::list<SpaceObject *>	enemies;
 	Sprite* ava_;
 	Sprite* enemy_;
 	Sprite* reticle_;
@@ -52,7 +56,7 @@ private:
 	float b_dir_x, b_dir_y;
 	bool is_bullet_active;
 	
-	static const int sNumEnemies = 1;
+	static const int sNumEnemies = 10;
 	int e_x[sNumEnemies];
 	int e_y[sNumEnemies];
 	bool alive_[sNumEnemies];

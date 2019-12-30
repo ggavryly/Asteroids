@@ -22,10 +22,14 @@ public:
 
 public:
 	virtual void	movement(ObjectMove) = 0;
-	virtual bool	collision(SpaceObject const *obj) const
+	bool	collision(SpaceObject const *obj) const
 	{
-		return	(obj_min_scope.x <= obj->pos.x <= obj_max_scope.x) &&
-				(obj_min_scope.y <= obj->pos.x <= obj_max_scope.y);
+		if (this->pos.x < obj->pos.x + obj->width &&
+			this->pos.x + this->width > obj->pos.x &&
+			this->pos.y < obj->pos.y + obj->height &&
+			this->pos.y + this->height > obj->pos.y)
+			return true;
+		return false;
 	}
 	virtual void	takeDamage() = 0;
 
@@ -33,8 +37,10 @@ public:
 	Vector		pos;
 	Vector		dir;
 	float		velocity = 0.0f;
+	float		angle = 0.0;
+	float		angle_velocity = 0.0f;
 	bool		move = false;
-	Vector		obj_min_scope;
-	Vector		obj_max_scope;
+	int 		width;
+	int 		height;
 };
 

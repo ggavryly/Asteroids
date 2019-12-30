@@ -81,7 +81,29 @@ FRAMEWORK_API void drawSprite(Sprite* sprite, int x, int y)
 	r.y = y;
 	SDL_RenderCopy(g_renderer, sprite->tex, NULL, &r);
 }
+FRAMEWORK_API void	wrapCoordinate(int &x, int &y)
+{
+	int sx, sy;
+	getScreenSize(sx, sy);
+	
+	x = (x > sx) ? (0) : (x);
+	y = (y > sy) ? (0) : (y);
+	
+	x = (x < 0) ? (sx) : (x);
+	y = (y < 0) ? (sx) : (y);
+}
 
+FRAMEWORK_API void	wrapCoordinatef(float &x, float &y)
+{
+	int sx, sy;
+	getScreenSize(sx, sy);
+	
+	x = (x > sx) ? (0) : (x);
+	y = (y > sy) ? (0) : (y);
+	
+	x = (x < 0) ? (sx) : (x);
+	y = (y < 0) ? (sx) : (y);
+}
 FRAMEWORK_API void drawSpriteAngle(Sprite *sprite,int x, int y, double angle)
 {
 	SDL_assert(g_framework_initialized);
@@ -339,11 +361,7 @@ bool Game::Init()
 	
 	player_ = new Player(ava_);
 	for (int i = 0; i < sNumEnemies; i++)
-	{
-		e_x[i] = rand() % sx;
-		e_y[i] = rand() % sy;
-		alive_[i] = true;
-	}
+		enemies.push_back(new Enemy(player_->pos, enemy_));
 	
 	ava_pos_x = sx / 2;
 	ava_pos_y = sy / 2;
@@ -365,20 +383,52 @@ void Game::Close()
 	destroySprite(enemy_);
 	destroySprite(reticle_);
 }
+
+void Game::unitsCollision()
+{
+	for (auto enemy = enemies.begin(); enemy != enemies.end(); enemy++)
+	{
+		for (auto elem = enemies.begin(); elem != enemies.end(); elem++)
+		{
+			if (elem != enemy && (*enemy)->collision(*elem))
+			{
+				(*elem)->takeDamage();
+				(*enemy)->takeDamage();
+				Enemy *tmp_elem = dynamic_cast<Enemy *>(*elem);
+				Enemy *tmp_enemy = dynamic_cast<Enemy *>(*enemy);
+				elem = enemies.erase(elem);
+				enemy = enemies.erase(enemy);
+				break;
+			}
+		}
+		if (player_->collision(*enemy))
+		{
+			(*enemy)->takeDamage();
+			player_->takeDamage();
+			Game::Close();
+			exit(1);
+		}
+	}
+}
+
 bool Game::Tick() {
 	
 	drawTestBackground();
 	
+	unitsCollision();
 	drawSpriteAngle(ava_, player_->pos.x - as_w / 2,  player_->pos.y - as_h / 2, player_->directionChoose(Vector(last_mouse_x, last_mouse_y)));
 	
 	bool should_exit = true;
-	for (int i = 0; i < sNumEnemies; ++i)
+	for (auto & elem : enemies)
 	{
-		if (alive_[i])
+		if (enemies.size() > 0)
 		{
-			int offset_y = (int)(30*sinf(getTickCount()*0.01f + e_x[i]));
-			drawSprite(enemy_, e_x[i] - es_w / 2, e_y[i] - es_w / 2 + offset_y);
+			drawSpriteAngle(enemy_, elem->pos.x - es_w / 2, elem->pos.y - es_h / 2, elem->angle += elem->angle_velocity);
+			elem->angle = (elem->angle > 360.0f) ? (0.0f) : (elem->angle);
 			should_exit = false;
+			elem->pos.x += elem->dir.x * elem->velocity;
+			elem->pos.y += elem->dir.y * elem->velocity;
+			wrapCoordinatef(elem->pos.x, elem->pos.y);
 		}
 	}
 	

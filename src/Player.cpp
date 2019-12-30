@@ -6,10 +6,8 @@ Player::Player(Sprite *player_sprite)
 	pos.x = tmp_x / 2; pos.y = tmp_y / 2;
 	dir.x = 0; dir.y = 1;
 	getSpriteSize(player_sprite, tmp_x, tmp_y);
-	obj_min_scope.x = -(tmp_x / 2);
-	obj_min_scope.y = -(tmp_y / 2);
-	obj_max_scope.x = tmp_x / 2;
-	obj_max_scope.y = tmp_y / 2;
+	width = tmp_x;
+	height = tmp_y;
 	velocity = 0.5;
 	_player = player_sprite;
 }
