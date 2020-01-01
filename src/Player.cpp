@@ -31,9 +31,9 @@ void Player::movement(ObjectMove m)
 		case ObjectMove::UP:
 		{
 			velocity *= 1.1;
-			velocity = (velocity > 2) ? (2) : (velocity);
-			_last_dir.x += dir.x;
-			_last_dir.y += dir.y;
+			velocity = (velocity > 1) ? (1) : (velocity);
+			_last_dir.x += dir.x / velocity;
+			_last_dir.y += dir.y / velocity;
 			_last_dir = _last_dir.normalization();
 			pos.x += _last_dir.x;
 			pos.y += _last_dir.y;
@@ -45,7 +45,7 @@ void Player::movement(ObjectMove m)
 			angle = (angle < 0.0f) ? (360.0f) : (angle);
 			dir = Vector(GRID_90 -  angle);
 			getComputerCoord(dir, angle);
-			std::cout << "angle =" << GRID_90 - angle << " | " << dir << std::endl;
+//			std::cout << "angle =" << GRID_90 - angle << " | " << dir << std::endl;
 			break;
 		}
 		case ObjectMove::RIGHT:
@@ -54,26 +54,26 @@ void Player::movement(ObjectMove m)
 			angle = (angle > 360.0f) ? (0.0f) : (angle);
 			dir = Vector(GRID_90 - angle);
 			getComputerCoord(dir, angle);
-			std::cout << "angle =" << GRID_90 - angle << " | " << dir << std::endl;
+//			std::cout << "angle =" << GRID_90 - angle << " | " << dir << std::endl;
 			break;
 		}
 		case ObjectMove::DOWN:
 		{
 			velocity *= 0.9;
-			velocity = (velocity < 0.5) ? (0.5) : (velocity);
-			_last_dir.x += dir.x;
-			_last_dir.y += dir.y;
+			velocity = (velocity < 0.2) ? (0.2) : (velocity);
+			_last_dir.x += dir.x / velocity;
+			_last_dir.y += dir.y / velocity;
 			_last_dir = _last_dir.normalization();
 			pos.x -= _last_dir.x;
 			pos.y -= _last_dir.y;
 			break;
 		}
 		case ObjectMove::NOTHING:
-//			pos.x += _last_dir.x * velocity;
-//			pos.y += _last_dir.y * velocity;
+			pos.x += _last_dir.x * velocity;
+			pos.y += _last_dir.y * velocity;
 			break;
 	}
-//	std::cout << _last_dir << std::endl;
+	std::cout << _last_dir << std::endl;
 	
 	int sx, sy;
 	getScreenSize(sx, sy);
