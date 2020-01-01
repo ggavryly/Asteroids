@@ -9,6 +9,3 @@
 #include <exception>
 #include <vector>
 #include <list>
-
-#define X 0
-#define Y 1

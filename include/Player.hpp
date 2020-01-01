@@ -24,10 +24,12 @@ public:
 	void	shoot();
 	void	movement(ObjectMove);
 	void	takeDamage();
-	float	directionChoose(Vector const & last_mouse_state);
 
 public:
 	Sprite*					_player;
 	Vector					_last_dir;
+	Vector					_mouse_dir;
 };
+
+void getComputerCoord(Vector &lhs, double angle);
 

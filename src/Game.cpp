@@ -13,12 +13,12 @@ public:
 
 FRAMEWORK_API double radianToAngle(double radian)
 {
-	return radian * 180 / M_PI;
+	return 180 / M_PI * radian;
 }
 
 FRAMEWORK_API double angleToRadian(double angle)
 {
-	return 180 / (angle * M_PI);
+	return M_PI / 180 * angle;
 }
 
 FRAMEWORK_API Sprite* createSprite(const char* path)
@@ -264,7 +264,6 @@ FRAMEWORK_API int run(Framework* framework)
 								int key_index = (event.key.keysym.sym - SDLK_RIGHT);
 								GFramework->onKeyPressed((FRKey)key_index);
 								GKeyState[key_index] = true;
-								std::cout << "PRESS" << std::endl;
 							}
 								break;
 							default:
@@ -388,6 +387,13 @@ void Game::unitsCollision()
 {
 	for (auto enemy = enemies.begin(); enemy != enemies.end(); enemy++)
 	{
+		if (player_->collision(*enemy))
+		{
+			(*enemy)->takeDamage();
+			player_->takeDamage();
+			Game::Close();
+			exit(1);
+		}
 		for (auto elem = enemies.begin(); elem != enemies.end(); elem++)
 		{
 			if (elem != enemy && (*enemy)->collision(*elem))
@@ -401,13 +407,6 @@ void Game::unitsCollision()
 				break;
 			}
 		}
-		if (player_->collision(*enemy))
-		{
-			(*enemy)->takeDamage();
-			player_->takeDamage();
-			Game::Close();
-			exit(1);
-		}
 	}
 }
 
@@ -416,9 +415,9 @@ bool Game::Tick() {
 	drawTestBackground();
 	
 	unitsCollision();
-	drawSpriteAngle(ava_, player_->pos.x - as_w / 2,  player_->pos.y - as_h / 2, player_->directionChoose(Vector(last_mouse_x, last_mouse_y)));
+	drawSpriteAngle(ava_, player_->pos.x - as_w / 2,  player_->pos.y - as_h / 2, player_->angle);
 	
-	bool should_exit = true;
+	bool should_exit = false;
 	for (auto & elem : enemies)
 	{
 		if (enemies.size() > 0)

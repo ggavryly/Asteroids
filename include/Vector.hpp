@@ -10,11 +10,14 @@ Vector operator+(const Vector & lhs, const float & rhs);
 Vector operator-(const Vector & lhs, const float & rhs);
 Vector operator/(const Vector & lhs, const float & rhs);
 Vector operator*(const Vector & lhs, const float & rhs);
+Vector operator-(const Vector &lhs);
+Vector operator+(const Vector &lhs);
 
 struct Vector
 {
 	Vector();
 	Vector(float x, float y);
+	Vector(float angle);
 	Vector(Vector const & rhs);
 	virtual ~Vector();
 	float	length() const;

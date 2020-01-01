@@ -4,6 +4,11 @@ Vector::Vector() : x(0), y(0)
 {}
 Vector::Vector(float x, float y) : x(x), y(y)
 {}
+Vector::Vector(float angle)
+{
+	this->x = cosf(angleToRadian(angle));
+	this->y = sinf(angleToRadian(angle));
+}
 Vector::Vector(Vector const & rhs)
 {
 	this->x = rhs.x;
@@ -113,6 +118,16 @@ Vector operator/(const Vector & lhs, const float & rhs)
 Vector operator*(const Vector & lhs, const float & rhs)
 {
 	return Vector(lhs.x * rhs, lhs.y * rhs);
+}
+
+Vector operator-(const Vector &lhs)
+{
+	return Vector(-lhs.x, -lhs.y);
+}
+
+Vector operator+(const Vector &lhs)
+{
+	return Vector(abs(lhs.x), abs(lhs.y));
 }
 
 Vector Vector::abs(Vector vector)
