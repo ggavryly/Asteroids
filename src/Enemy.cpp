@@ -15,10 +15,10 @@ Enemy::Enemy(Vector & player_pos, Sprite * my_sprite)
 	width = tmpx;
 	height = tmpy;
 	angle_velocity = (rand() + i) % 4 + 1;
-	if (abs(this->pos.x - player_pos.x) < 100)
-		this->pos.x += 200;
-	if (abs(this->pos.y - player_pos.y) < 100)
-		this->pos.y += 200;
+	if (abs(this->pos.x - player_pos.x) < 250)
+		this->pos.x -= 200;
+	if (abs(this->pos.y - player_pos.y) < 250)
+		this->pos.y -= 200;
 }
 
 Enemy::~Enemy()

@@ -135,27 +135,6 @@ FRAMEWORK_API unsigned int getTickCount()
 /* Draw a Gimpish background pattern to show transparency in the image */
 static void draw_background(SDL_Renderer *renderer, int w, int h)
 {
-	SDL_Color col[2] = {
-			{ 0x66, 0x66, 0x66, 0xff },
-			{ 0x99, 0x99, 0x99, 0xff },
-	};
-	int i, x, y;
-	SDL_Rect rect;
-	
-	rect.w = 8;
-	rect.h = 8;
-	for (y = 0; y < h; y += rect.h) {
-		for (x = 0; x < w; x += rect.w) {
-			/* use an 8x8 checkerboard pattern */
-			i = (((x ^ y) >> 1) & 1);
-			SDL_SetRenderDrawColor(renderer, col[i].r, col[i].g, col[i].b, col[i].a);
-			
-			rect.x = x;
-			rect.y = y;
-			SDL_RenderFillRect(renderer, &rect);
-//			SDL_RenderPresent(renderer);
-		}
-	}
 }
 
 
@@ -232,7 +211,6 @@ FRAMEWORK_API int run(Framework* framework)
 			while ( SDL_PollEvent(&event) ) {
 				switch (event.type) {
 					case SDL_KEYUP:
-						event_check = false;
 						switch (event.key.keysym.sym)
 						{
 							case SDLK_RIGHT:
@@ -253,7 +231,6 @@ FRAMEWORK_API int run(Framework* framework)
 						}
 						break;
 					case SDL_KEYDOWN:
-						event_check = true;
 						switch (event.key.keysym.sym)
 						{
 							case SDLK_RIGHT:
@@ -262,7 +239,6 @@ FRAMEWORK_API int run(Framework* framework)
 							case SDLK_UP:
 							{
 								int key_index = (event.key.keysym.sym - SDLK_RIGHT);
-								GFramework->onKeyPressed((FRKey)key_index);
 								GKeyState[key_index] = true;
 							}
 								break;
@@ -291,8 +267,7 @@ FRAMEWORK_API int run(Framework* framework)
 						break;
 				}
 			}
-			if (!event_check)
-				GFramework->onKeyPressed(FRKey::COUNT);
+			GFramework->onKeyPressed(FRKey::COUNT);
 			
 			SDL_RenderClear(g_renderer);
 			
@@ -305,7 +280,6 @@ FRAMEWORK_API int run(Framework* framework)
 			
 			done |= GFramework->Tick() ? 1 : 0;
 			SDL_RenderPresent(g_renderer);
-			
 			SDL_Delay(1);
 		}
 	}
@@ -330,6 +304,29 @@ Game::~Game()
 	Close();
 }
 
+void Game::drawEvents()
+{
+
+	if (events.size() > 0)
+	{
+		for (auto elem = events.begin(); elem < events.end(); elem++)
+		{
+			if (elem->animation.getCurrentFrame() != -1)
+				elem->animation.animate(elem->pos.x - ex_w / 2 , elem->pos.y - ex_h / 2, explosion);
+			else if (elem->animation.getCurrentFrame() == -1)
+				elem = events.erase(elem);
+		}
+	}
+}
+
+Vector Game::interpolateCoords(Vector const &xy0, Vector const &xy1)
+{
+	Vector tmp;
+	tmp.x = (xy0.x + xy1.x) / 2;
+	tmp.y = (xy0.y + xy1.y) / 2;
+	return tmp;
+}
+
 void Game::PreInit(int& width, int& height, bool& fullscreen)
 {
 	width = 1000;
@@ -348,6 +345,8 @@ bool Game::Init()
 	enemy_ = createSprite("../data/small_asteroid.png");
 	reticle_ = createSprite("../data/circle.tga");
 	bullet_ = createSprite("../data/bullet.png");
+	for (int j = 1; j < 14 + 1; j++)
+		explosion.push_back(createSprite(("../data/explosion-" + std::to_string(j) + ".png").c_str()));
 	
 	if (!reticle_ || !ava_ || ! enemy_ || !reticle_ || !bullet_)
 		return false;
@@ -356,6 +355,7 @@ bool Game::Init()
 	getSpriteSize(enemy_, es_w, es_h);
 	getSpriteSize(reticle_, rs_w, rs_h);
 	getSpriteSize(bullet_, bs_w, bs_h);
+	getSpriteSize(explosion[0] ,ex_w, ex_h);
 	
 	
 	player_ = new Player(ava_);
@@ -377,31 +377,31 @@ bool Game::Init()
 
 void Game::Close()
 {
-	
 	destroySprite(ava_);
 	destroySprite(enemy_);
 	destroySprite(reticle_);
+	for (auto &elem : explosion)
+		destroySprite(elem);
 }
 
 void Game::unitsCollision()
 {
 	for (auto enemy = enemies.begin(); enemy != enemies.end(); enemy++)
 	{
-		if (player_->collision(*enemy))
-		{
-			(*enemy)->takeDamage();
-			player_->takeDamage();
-			Game::Close();
-			exit(1);
-		}
+//		if (player_->collision(*enemy))
+//		{
+//			(*enemy)->takeDamage();
+//			player_->takeDamage();
+//			Game::Close();
+//			exit(1);
+//		}
 		for (auto elem = enemies.begin(); elem != enemies.end(); elem++)
 		{
 			if (elem != enemy && (*enemy)->collision(*elem))
 			{
 				(*elem)->takeDamage();
 				(*enemy)->takeDamage();
-				Enemy *tmp_elem = dynamic_cast<Enemy *>(*elem);
-				Enemy *tmp_enemy = dynamic_cast<Enemy *>(*enemy);
+				events.push_back(EventExplosion(interpolateCoords((*elem)->getPos(), (*enemy)->getPos()), explosion.size()));
 				elem = enemies.erase(elem);
 				enemy = enemies.erase(enemy);
 				break;
@@ -448,11 +448,18 @@ bool Game::Tick() {
 		if (b_y < 0 || b_y > sy)
 			is_bullet_active = false;
 	}
-	
 	if (is_bullet_active)
 	{
 		drawSprite(bullet_, (int)b_x - bs_w / 2, (int)b_y - bs_h / 2);
 	}
+	
+	if (enemies.size() != sNumEnemies)
+	{
+		for(int i = 0, delta = sNumEnemies - enemies.size(); i < delta; i++)
+			enemies.push_back(new Enemy(player_->pos, enemy_));
+	}
+	drawEvents();
+	
 	return should_exit;
 }
 
@@ -516,23 +523,16 @@ void Game::onKeyReleased(FRKey k) {
 
 void Game::onKey(FRKey k)
 {
-	switch (k)
+	bool ev_check = false;
+	for (int i = 0; i < 4; i++)
 	{
-		case FRKey::LEFT:
-			player_->movement(LEFT);
-			break;
-		case FRKey::RIGHT:
-			player_->movement(RIGHT);
-			break;
-		case FRKey::DOWN:
-			player_->movement(DOWN);
-			break;
-		case FRKey::UP:
-			player_->movement(UP);
-			break;
-		case FRKey::COUNT:
-			player_->movement(NOTHING);
+		if (GKeyState[i])
+		{
+			player_->movement(ObjectMove(i));
+			ev_check = true;
+		}
 	}
+	player_->movement(NOTHING);
 }
 const char* Game::GetTitle()
 {

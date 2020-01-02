@@ -30,42 +30,36 @@ void Player::movement(ObjectMove m)
 	{
 		case ObjectMove::UP:
 		{
-			velocity *= 1.1;
-			velocity = (velocity > 1) ? (1) : (velocity);
+			velocity *= 1.01;
+			velocity = (velocity > 0.5) ? (0.5) : (velocity);
 			_last_dir.x += dir.x / velocity;
 			_last_dir.y += dir.y / velocity;
 			_last_dir = _last_dir.normalization();
-			pos.x += _last_dir.x;
-			pos.y += _last_dir.y;
 			break;
 		}
 		case ObjectMove::LEFT:
 		{
-			angle -= 3;
+			angle -= 1;
 			angle = (angle < 0.0f) ? (360.0f) : (angle);
 			dir = Vector(GRID_90 -  angle);
 			getComputerCoord(dir, angle);
-//			std::cout << "angle =" << GRID_90 - angle << " | " << dir << std::endl;
 			break;
 		}
 		case ObjectMove::RIGHT:
 		{
-			angle += 3;
+			angle += 1;
 			angle = (angle > 360.0f) ? (0.0f) : (angle);
 			dir = Vector(GRID_90 - angle);
 			getComputerCoord(dir, angle);
-//			std::cout << "angle =" << GRID_90 - angle << " | " << dir << std::endl;
 			break;
 		}
 		case ObjectMove::DOWN:
 		{
-			velocity *= 0.9;
-			velocity = (velocity < 0.2) ? (0.2) : (velocity);
-			_last_dir.x += dir.x / velocity;
-			_last_dir.y += dir.y / velocity;
+			velocity *= 0.99;
+			velocity = (velocity < 0.001) ? (0.001) : (velocity);
+			_last_dir.x += dir.x * velocity;
+			_last_dir.y += dir.y * velocity;
 			_last_dir = _last_dir.normalization();
-			pos.x -= _last_dir.x;
-			pos.y -= _last_dir.y;
 			break;
 		}
 		case ObjectMove::NOTHING:
@@ -73,8 +67,6 @@ void Player::movement(ObjectMove m)
 			pos.y += _last_dir.y * velocity;
 			break;
 	}
-	std::cout << _last_dir << std::endl;
-	
 	int sx, sy;
 	getScreenSize(sx, sy);
 	
@@ -93,7 +85,6 @@ void Player::takeDamage()
 
 void getComputerCoord(Vector & lhs, double angle)
 {
-	std::cout << "BEFORE COMPUTER COORDS { x =" << lhs.x << "  | y =" << lhs.y << " }" << std::endl;
 	if (angle <= GRID_90)
 		lhs.y = -lhs.y;
 	else if (angle >= GRID_90 && angle <= GRID_180)
@@ -102,5 +93,4 @@ void getComputerCoord(Vector & lhs, double angle)
 		lhs.y = abs(lhs.y);
 	else if (angle >= GRID_270 && angle <= GRID_360)
 		lhs.y = -lhs.y;
-	std::cout << "AFTER COMPUTER COORDS { x =" << lhs.x << "  | y =" << lhs.y << " }" << std::endl;
 }

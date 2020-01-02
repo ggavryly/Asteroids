@@ -5,6 +5,9 @@
 #include "InitOptions.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "Animation.hpp"
+#include "EventExplosion.hpp"
+#include "Vector.hpp"
 
 static SDL_Renderer *g_renderer;
 static int g_width = 800;
@@ -30,38 +33,43 @@ public:
 	void onKeyPressed(FRKey k) override;
 	void onKeyReleased(FRKey k) override;
 	void onKey(FRKey k);
+	void drawEvents();
+	Vector interpolateCoords(Vector const &xy0, Vector const &xy1);
 	const char* GetTitle() override;
 
 public:
 	InitOptions	*init_;
 private:
-	Player	*player_;
-	std::list<SpaceObject *>	enemies;
-	Sprite* ava_;
-	Sprite* enemy_;
-	Sprite* reticle_;
-	Sprite* bullet_;
-	int as_w, as_h;
-	int es_w, es_h;
-	int rs_w, rs_h;
-	int bs_w, bs_h;
+	Player								*player_;
+	std::list<SpaceObject *>			enemies;
+	std::vector<Sprite *>				explosion;
+	std::vector<EventExplosion>			events;
+	Sprite*								ava_;
+	Sprite*								enemy_;
+	Sprite*								reticle_;
+	Sprite*								bullet_;
+	int 								as_w, as_h;
+	int 								es_w, es_h;
+	int 								rs_w, rs_h;
+	int 								bs_w, bs_h;
+	int									ex_w, ex_h;
 	
-	int r_x;
-	int r_y;
+	int 								r_x;
+	int 								r_y;
 	
-	int ava_pos_x;
-	int ava_pos_y;
+	int									ava_pos_x;
+	int									ava_pos_y;
 	
-	float b_x, b_y;
-	float b_dir_x, b_dir_y;
-	bool is_bullet_active;
+	float 								b_x, b_y;
+	float 								b_dir_x, b_dir_y;
+	bool 								is_bullet_active;
 	
-	static const int sNumEnemies = 5;
-	int e_x[sNumEnemies];
-	int e_y[sNumEnemies];
-	bool alive_[sNumEnemies];
+	static const int					sNumEnemies = 10;
+	int									e_x[sNumEnemies];
+	int									e_y[sNumEnemies];
+	bool								alive_[sNumEnemies];
 	
-	int last_mouse_x = 500;
-	int last_mouse_y = 0;
+	int									last_mouse_x = 500;
+	int									last_mouse_y = 0;
 };
 
