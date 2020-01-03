@@ -41,8 +41,8 @@ public:
 public:
 	InitOptions	*init_;
 private:
-	Player								*player_;
-	std::list<SpaceObject *>			enemies;
+	Player									*player_;
+	std::list<std::unique_ptr<SpaceObject>>	enemies;
 	std::vector<Sprite *>				explosion;
 	std::vector<EventExplosion>			events;
 	std::vector<Bullet *>				bullets;

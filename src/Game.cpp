@@ -367,7 +367,7 @@ bool Game::Init()
 	
 	player_ = new Player(ava_);
 	for (int i = 0; i < sNumEnemies; i++)
-		enemies.push_back(new Enemy(player_->pos, (i % 2 == 0) ? enemy_ : big_enemy_, i % 2 == 0));
+		enemies.emplace_back(new Enemy(player_->pos, (i % 2 == 0) ? enemy_ : big_enemy_));
 	
 	ava_pos_x = sx / 2;
 	ava_pos_y = sy / 2;
@@ -391,16 +391,14 @@ void Game::unitsCollision()
 {
 	for (auto enemy = enemies.begin(); enemy != enemies.end(); enemy++) // collsion's compute
 	{
-//		if (player_->collision(*enemy)) // player and enemy's collsion
-//		{
-//			(*enemy)->takeDamage();
-//			player_->takeDamage();
-//			Game::Close();
-//			exit(1);
-//		}
+		if (player_->collision(**enemy)) // player and enemy's collsion
+		{
+			Game::Close();
+			exit(1);
+		}
 		for (auto bullet = bullets.begin(); bullet < bullets.end(); bullet++) // bullets and enemy's collsion
 		{
-			if (enemy != enemies.end() && (*bullet)->collision(*enemy))
+			if (enemy != enemies.end() && (*bullet)->collision(**enemy))
 			{
 				events.push_back(EventExplosion(interpolateCoords((*bullet)->getPos(), (*enemy)->getPos()), explosion.size()));
 				bullet = bullets.erase(bullet);
@@ -411,7 +409,7 @@ void Game::unitsCollision()
 		}
 		for (auto elem = enemies.begin(); elem != enemies.end(); elem++) // enemy's with enemy's collsion
 		{
-			if (elem != enemy && enemy != enemies.end() && (*enemy)->collision(*elem))
+			if (elem != enemy && enemy != enemies.end() && (*enemy)->collision(**elem))
 			{
 				events.push_back(EventExplosion(interpolateCoords((*elem)->getPos(), (*enemy)->getPos()), explosion.size()));
 //				if (dynamic_cast<Enemy *>(*enemy)->is_big)
@@ -426,10 +424,12 @@ void Game::unitsCollision()
 	}
 }
 
+#include <memory>
+
 void Game::splitAsteroid(Vector const & pos)
 {
-	enemies.push_back(new Enemy(player_->pos, enemy_, false));
-	enemies.push_back(new Enemy(player_->pos, enemy_, false));
+	enemies.emplace_back(new Enemy(player_->pos, enemy_));
+	enemies.emplace_back(new Enemy(player_->pos, enemy_));
 }
 
 bool Game::Tick() {
@@ -463,7 +463,7 @@ bool Game::Tick() {
 	{
 		srand(time(nullptr));
 		for(int i = 0, delta = sNumEnemies - enemies.size(); i < delta; i++)
-			enemies.push_back(new Enemy(player_->pos, (rand() % 2 == 0) ? (enemy_) : (big_enemy_), rand() % 2));
+			enemies.emplace_back(new Enemy(player_->pos, enemy_));
 	}
 	drawEvents();
 	return false;

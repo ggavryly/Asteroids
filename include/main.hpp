@@ -9,3 +9,4 @@
 #include <exception>
 #include <vector>
 #include <list>
+#include <memory>

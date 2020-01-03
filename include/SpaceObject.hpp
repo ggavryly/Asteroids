@@ -63,12 +63,12 @@ public:
 
 public:
 	virtual void	movement(ObjectMove) = 0;
-	bool	collision(SpaceObject const *obj) const
+	bool	collision(SpaceObject const  &obj) const
 	{
-		if (this->pos.x < obj->pos.x + obj->width &&
-			this->pos.x + this->width > obj->pos.x &&
-			this->pos.y < obj->pos.y + obj->height &&
-			this->pos.y + this->height > obj->pos.y)
+		if (pos.x < obj.pos.x + obj.width &&
+			pos.x + width > obj.pos.x &&
+			pos.y < obj.pos.y + obj.height &&
+			pos.y + height > obj.pos.y)
 			return true;
 		return false;
 	}

@@ -6,7 +6,9 @@
 class Enemy : public SpaceObject
 {
 public:
-	Enemy(Vector &player_pos, Sprite *my_sprite, bool is_big);
+	Enemy(Vector &player_pos, Sprite *my_sprite);
+	
+	Enemy(Vector const &big_asteroid_pos, Sprite *my_sprite, Vector const &big_asteroid_dir);
 	
 	Enemy(Enemy const &) = default;
 	
