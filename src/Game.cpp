@@ -349,6 +349,7 @@ bool Game::Init()
 	
 	ava_ = createSprite("../data/spaceship.png");
 	enemy_ = createSprite("../data/small_asteroid.png");
+	big_enemy_ = createSprite("../data/big_asteroid.png");
 	reticle_ = createSprite("../data/circle.tga");
 	bullet_ = createSprite("../data/bullet.png");
 	for (int j = 1; j < 14 + 1; j++)
@@ -366,7 +367,7 @@ bool Game::Init()
 	
 	player_ = new Player(ava_);
 	for (int i = 0; i < sNumEnemies; i++)
-		enemies.push_back(new Enemy(player_->pos, enemy_));
+		enemies.push_back(new Enemy(player_->pos, (i % 2 == 0) ? enemy_ : big_enemy_, i % 2 == 0));
 	
 	ava_pos_x = sx / 2;
 	ava_pos_y = sy / 2;
@@ -397,20 +398,26 @@ void Game::unitsCollision()
 //			Game::Close();
 //			exit(1);
 //		}
-		for (auto bullet = bullets.begin(), bullet0 = bullets.end(); bullet < bullets.end(); bullet++) // bullets and enemy's collsion
+		for (auto bullet = bullets.begin(); bullet < bullets.end(); bullet++) // bullets and enemy's collsion
 		{
 			if (enemy != enemies.end() && (*bullet)->collision(*enemy))
 			{
 				events.push_back(EventExplosion(interpolateCoords((*bullet)->getPos(), (*enemy)->getPos()), explosion.size()));
 				bullet = bullets.erase(bullet);
+//				if (dynamic_cast<Enemy *>(*enemy)->is_big)
+//					splitAsteroid();
 				enemy = enemies.erase(enemy);
 			}
 		}
-		for (auto elem = enemies.begin(), elem0 = enemies.end(); elem != enemies.end(); elem++) // enemy's with enemy's collsion
+		for (auto elem = enemies.begin(); elem != enemies.end(); elem++) // enemy's with enemy's collsion
 		{
 			if (elem != enemy && enemy != enemies.end() && (*enemy)->collision(*elem))
 			{
 				events.push_back(EventExplosion(interpolateCoords((*elem)->getPos(), (*enemy)->getPos()), explosion.size()));
+//				if (dynamic_cast<Enemy *>(*enemy)->is_big)
+//					splitAsteroid();
+//				if (dynamic_cast<Enemy *>(*elem)->is_big)
+//					splitAsteroid();
 				elem = enemies.erase(elem);
 				enemy = enemies.erase(enemy);
 				continue;
@@ -419,18 +426,24 @@ void Game::unitsCollision()
 	}
 }
 
+void Game::splitAsteroid(Vector const & pos)
+{
+	enemies.push_back(new Enemy(player_->pos, enemy_, false));
+	enemies.push_back(new Enemy(player_->pos, enemy_, false));
+}
+
 bool Game::Tick() {
 	
 	drawTestBackground();
 	
 	unitsCollision();
-	drawSpriteAngle(ava_, player_->pos.x - as_w / 2,  player_->pos.y - as_h / 2, player_->angle);
+	drawSpriteAngle(player_->sprite, player_->pos.x - as_w / 2,  player_->pos.y - as_h / 2, player_->angle);
 	
 	for (auto & elem : enemies) // enemy's rendering
 	{
 		if (enemies.size() > 0)
 		{
-			drawSpriteAngle(enemy_, elem->pos.x - es_w / 2, elem->pos.y - es_h / 2, elem->angle += elem->angle_velocity);
+			drawSpriteAngle(elem->sprite, elem->pos.x - es_w / 2, elem->pos.y - es_h / 2, elem->angle += elem->angle_velocity);
 			elem->movement(ObjectMove::NOTHING);
 		}
 	}
@@ -439,7 +452,7 @@ bool Game::Tick() {
 	{
 		if (enemies.size() > 0)
 		{
-			drawSpriteAngle(bullet_ , elem->pos.x - es_w / 2, elem->pos.y - es_h / 2, elem->angle);
+			drawSpriteAngle(elem->sprite , elem->pos.x - es_w / 2, elem->pos.y - es_h / 2, elem->angle);
 			elem->movement(ObjectMove::NOTHING);
 		}
 	}
@@ -448,8 +461,9 @@ bool Game::Tick() {
 	
 	if (enemies.size() != sNumEnemies)
 	{
+		srand(time(nullptr));
 		for(int i = 0, delta = sNumEnemies - enemies.size(); i < delta; i++)
-			enemies.push_back(new Enemy(player_->pos, enemy_));
+			enemies.push_back(new Enemy(player_->pos, (rand() % 2 == 0) ? (enemy_) : (big_enemy_), rand() % 2));
 	}
 	drawEvents();
 	return false;
@@ -473,9 +487,7 @@ void Game::onMouseButtonClick(FRMouseButton button, bool isReleased)
 		bullets.push_back(player_->shoot(Vector(last_mouse_x, last_mouse_y), bullet_));
 	}
 	if (button == FRMouseButton::RIGHT && isReleased)
-	{
-		std::cout << "RIGHT MOUSE CLICK" << std::endl;
-	}
+	{}
 	
 }
 void Game::onKeyPressed(FRKey k) {

@@ -14,8 +14,6 @@ public:
 	~Bullet();
 	
 	void movement(ObjectMove);
-
-public:
-	Sprite	*bullet_sprite;
+	
 };
 

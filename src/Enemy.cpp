@@ -1,28 +1,37 @@
 #include "Enemy.hpp"
 
-Enemy::Enemy(Vector & player_pos, Sprite * my_sprite)
+Enemy::Enemy(Vector & player_pos, Sprite * enemy_sprite, bool is_big)
 {
 	static int i=1;
 	int tmpx, tmpy;
-	getScreenSize(tmpx, tmpy);
 	srand(time(nullptr));
-	dir = Vector(rand() /  i++, rand() * i++).normalization();
-	pos.x = abs((rand() * i) % tmpx);
-	pos.y = abs((rand() / i) % tmpy);
 	velocity = rand() % 1 + 1;
-	enemy_sprite = my_sprite;
+	angle_velocity = (rand() + i) % 4 + 1;
+	getScreenSize(tmpx, tmpy);
+	sprite = enemy_sprite;
 	getSpriteSize(enemy_sprite, tmpx, tmpy);
 	width = tmpx;
 	height = tmpy;
-	angle_velocity = (rand() + i) % 4 + 1;
-	if (abs(this->pos.x - player_pos.x) < 250)
-		this->pos.x -= 200;
-	if (abs(this->pos.y - player_pos.y) < 250)
-		this->pos.y -= 200;
+	if (!is_big)
+	{
+		dir = Vector(rand() / i++, rand() * i++).normalization();
+		pos.x = abs((rand() * i) % tmpx);
+		pos.y = abs((rand() / i) % tmpy);
+		if (abs(this->pos.x - player_pos.x) < 250)
+			this->pos.x -= 200;
+		if (abs(this->pos.y - player_pos.y) < 250)
+			this->pos.y -= 200;
+		this->is_big = is_big;
+	}
+	else
+	{
+	
+	}
 }
 
 Enemy::~Enemy()
 {}
+
 
 void Enemy::movement(ObjectMove)
 {

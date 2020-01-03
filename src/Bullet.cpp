@@ -5,7 +5,7 @@ Bullet::Bullet(Vector &bullet_dir, Vector &bullet_pos ,Sprite *bullet_sprite, fl
 	dir = bullet_dir;
 	pos = bullet_pos;
 	velocity = 5;
-	this->bullet_sprite = bullet_sprite;
+	sprite = bullet_sprite;
 	int sp_w, sp_h;
 	getSpriteSize(bullet_sprite, sp_w, sp_h);
 	width = sp_w;

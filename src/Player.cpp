@@ -10,7 +10,7 @@ Player::Player(Sprite *player_sprite)
 	height = tmp_y;
 	velocity = 0.5;
 	angle = 0;
-	_player = player_sprite;
+	sprite = player_sprite;
 }
 
 Player::Player(Player const &)

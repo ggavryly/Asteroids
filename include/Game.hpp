@@ -36,6 +36,7 @@ public:
 	void drawEvents();
 	Vector interpolateCoords(Vector const &xy0, Vector const &xy1);
 	const char* GetTitle() override;
+	void splitAsteroid(Vector const & pos);
 
 public:
 	InitOptions	*init_;
@@ -47,6 +48,7 @@ private:
 	std::vector<Bullet *>				bullets;
 	Sprite*								ava_;
 	Sprite*								enemy_;
+	Sprite*								big_enemy_;
 	Sprite*								reticle_;
 	Sprite*								bullet_;
 	int 								as_w, as_h;

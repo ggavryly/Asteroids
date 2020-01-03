@@ -27,7 +27,6 @@ public:
 	void	computeMouseDir(Vector const & mouse_pos);
 
 public:
-	Sprite*					_player;
 	Vector					_last_dir;
 	Vector					_mouse_dir;
 	float					_mouse_angle;

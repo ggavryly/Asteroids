@@ -1,6 +1,7 @@
 #pragma once
 #include "main.hpp"
 #include "Vector.hpp"
+#include "Framework.hpp"
 
 enum ObjectMove
 {
@@ -73,6 +74,7 @@ public:
 	}
 
 public:
+	Sprite		*sprite;
 	Vector		pos;
 	Vector		dir;
 	float		velocity = 0.0f;
