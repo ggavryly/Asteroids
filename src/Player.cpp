@@ -19,9 +19,25 @@ Player::Player(Player const &)
 Player::~Player()
 {}
 
-void Player::shoot()
+void Player::computeMouseDir(Vector const & mouse_pos)
 {
+	Vector pl_mouse_hytotenuse = mouse_pos - pos;
+	Vector x_line(abs(mouse_pos.x - pos.x), 0);
+	_mouse_dir = pl_mouse_hytotenuse.normalization();
+	if (_mouse_dir.x > 0 && _mouse_dir.y < 0)
+		_mouse_angle = abs(GRID_90 - radianToAngle(acosf(Vector::abs(pl_mouse_hytotenuse).angleVector(x_line))));
+	else if (_mouse_dir.x < 0 && _mouse_dir.y > 0)
+		_mouse_angle = -(radianToAngle(acosf(Vector::abs(pl_mouse_hytotenuse).angleVector(x_line))) - GRID_90) + GRID_180;
+	else if (_mouse_dir.x < 0 && _mouse_dir.y < 0)
+		_mouse_angle = radianToAngle(acosf(Vector::abs(pl_mouse_hytotenuse).angleVector(x_line))) + GRID_270;
+	else if (_mouse_dir.x > 0 && _mouse_dir.y > 0)
+		_mouse_angle = radianToAngle(acosf(Vector::abs(pl_mouse_hytotenuse).angleVector(x_line))) + GRID_90;
+}
 
+Bullet* Player::shoot(Vector const & mouse_pos, Sprite *bullet_sprite)
+{
+	computeMouseDir(mouse_pos);
+	return new Bullet(_mouse_dir, pos, bullet_sprite, _mouse_angle);
 }
 
 void Player::movement(ObjectMove m)
@@ -30,8 +46,8 @@ void Player::movement(ObjectMove m)
 	{
 		case ObjectMove::UP:
 		{
-			velocity *= 1.01;
-			velocity = (velocity > 0.5) ? (0.5) : (velocity);
+			velocity *= 1.05;
+			velocity = (velocity > 2) ? (2) : (velocity);
 			_last_dir.x += dir.x / velocity;
 			_last_dir.y += dir.y / velocity;
 			_last_dir = _last_dir.normalization();
@@ -55,7 +71,7 @@ void Player::movement(ObjectMove m)
 		}
 		case ObjectMove::DOWN:
 		{
-			velocity *= 0.99;
+			velocity *= 0.98;
 			velocity = (velocity < 0.001) ? (0.001) : (velocity);
 			_last_dir.x += dir.x * velocity;
 			_last_dir.y += dir.y * velocity;
@@ -76,11 +92,6 @@ void Player::movement(ObjectMove m)
 	
 	pos.x = pos.x > sx ? 0 : pos.x;
 	pos.y = pos.y > sy ? 0 : pos.y;
-}
-
-void Player::takeDamage()
-{
-
 }
 
 void getComputerCoord(Vector & lhs, double angle)

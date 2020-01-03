@@ -44,6 +44,7 @@ private:
 	std::list<SpaceObject *>			enemies;
 	std::vector<Sprite *>				explosion;
 	std::vector<EventExplosion>			events;
+	std::vector<Bullet *>				bullets;
 	Sprite*								ava_;
 	Sprite*								enemy_;
 	Sprite*								reticle_;
@@ -60,11 +61,8 @@ private:
 	int									ava_pos_x;
 	int									ava_pos_y;
 	
-	float 								b_x, b_y;
-	float 								b_dir_x, b_dir_y;
-	bool 								is_bullet_active;
-	
-	static const int					sNumEnemies = 10;
+	static const int					sNumEnemies = 5;
+	static const int					sNumAmmo = 5;
 	int									e_x[sNumEnemies];
 	int									e_y[sNumEnemies];
 	bool								alive_[sNumEnemies];

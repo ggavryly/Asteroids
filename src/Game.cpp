@@ -160,7 +160,8 @@ FRAMEWORK_API int run(Framework* framework)
 	SDL_Window *window;
 	Uint32 flags;
 	int done;
-	bool event_check = false;
+	Uint32	old_time = 0;
+	Uint32	fps = 12;
 	SDL_Event event;
 	
 	for (int i = 0; i < (int)FRKey::COUNT; ++i)
@@ -267,20 +268,25 @@ FRAMEWORK_API int run(Framework* framework)
 						break;
 				}
 			}
-			GFramework->onKeyPressed(FRKey::COUNT);
-			
-			SDL_RenderClear(g_renderer);
-			
-			SDL_Rect viewport;
-			SDL_RenderGetViewport(g_renderer, &viewport);
-			
-			/* Draw a gray background */
-			SDL_SetRenderDrawColor(g_renderer, 0xA0, 0xA0, 0xA0, 0xFF);
-			SDL_RenderClear(g_renderer);
-			
-			done |= GFramework->Tick() ? 1 : 0;
-			SDL_RenderPresent(g_renderer);
-			SDL_Delay(1);
+			if (old_time + fps > SDL_GetTicks())
+				continue;
+			else
+			{
+				old_time = SDL_GetTicks();
+				GFramework->onKeyPressed(FRKey::COUNT);
+				
+				SDL_RenderClear(g_renderer);
+				
+				SDL_Rect viewport;
+				SDL_RenderGetViewport(g_renderer, &viewport);
+				
+				/* Draw a gray background */
+				SDL_SetRenderDrawColor(g_renderer, 0xA0, 0xA0, 0xA0, 0xFF);
+				SDL_RenderClear(g_renderer);
+				
+				done |= GFramework->Tick() ? 1 : 0;
+				SDL_RenderPresent(g_renderer);
+			}
 		}
 	}
 	
@@ -368,10 +374,6 @@ bool Game::Init()
 	r_x = ava_pos_x;
 	r_y = ava_pos_y;
 	
-	b_x = b_y = 0;
-	is_bullet_active = false;
-	b_dir_x = b_dir_y = 1;
-	
 	return true;
 }
 
@@ -386,25 +388,32 @@ void Game::Close()
 
 void Game::unitsCollision()
 {
-	for (auto enemy = enemies.begin(); enemy != enemies.end(); enemy++)
+	for (auto enemy = enemies.begin(); enemy != enemies.end(); enemy++) // collsion's compute
 	{
-//		if (player_->collision(*enemy))
+//		if (player_->collision(*enemy)) // player and enemy's collsion
 //		{
 //			(*enemy)->takeDamage();
 //			player_->takeDamage();
 //			Game::Close();
 //			exit(1);
 //		}
-		for (auto elem = enemies.begin(); elem != enemies.end(); elem++)
+		for (auto bullet = bullets.begin(), bullet0 = bullets.end(); bullet < bullets.end(); bullet++) // bullets and enemy's collsion
 		{
-			if (elem != enemy && (*enemy)->collision(*elem))
+			if (enemy != enemies.end() && (*bullet)->collision(*enemy))
 			{
-				(*elem)->takeDamage();
-				(*enemy)->takeDamage();
+				events.push_back(EventExplosion(interpolateCoords((*bullet)->getPos(), (*enemy)->getPos()), explosion.size()));
+				bullet = bullets.erase(bullet);
+				enemy = enemies.erase(enemy);
+			}
+		}
+		for (auto elem = enemies.begin(), elem0 = enemies.end(); elem != enemies.end(); elem++) // enemy's with enemy's collsion
+		{
+			if (elem != enemy && enemy != enemies.end() && (*enemy)->collision(*elem))
+			{
 				events.push_back(EventExplosion(interpolateCoords((*elem)->getPos(), (*enemy)->getPos()), explosion.size()));
 				elem = enemies.erase(elem);
 				enemy = enemies.erase(enemy);
-				break;
+				continue;
 			}
 		}
 	}
@@ -417,41 +426,25 @@ bool Game::Tick() {
 	unitsCollision();
 	drawSpriteAngle(ava_, player_->pos.x - as_w / 2,  player_->pos.y - as_h / 2, player_->angle);
 	
-	bool should_exit = false;
-	for (auto & elem : enemies)
+	for (auto & elem : enemies) // enemy's rendering
 	{
 		if (enemies.size() > 0)
 		{
 			drawSpriteAngle(enemy_, elem->pos.x - es_w / 2, elem->pos.y - es_h / 2, elem->angle += elem->angle_velocity);
-			elem->angle = (elem->angle > 360.0f) ? (0.0f) : (elem->angle);
-			should_exit = false;
-			elem->pos.x += elem->dir.x * elem->velocity;
-			elem->pos.y += elem->dir.y * elem->velocity;
-			wrapCoordinatef(elem->pos.x, elem->pos.y);
+			elem->movement(ObjectMove::NOTHING);
+		}
+	}
+	
+	for (auto & elem : bullets) // bullet's rendering
+	{
+		if (enemies.size() > 0)
+		{
+			drawSpriteAngle(bullet_ , elem->pos.x - es_w / 2, elem->pos.y - es_h / 2, elem->angle);
+			elem->movement(ObjectMove::NOTHING);
 		}
 	}
 	
 	drawSprite(reticle_, r_x - rs_w / 2, r_y - rs_h / 2);
-	if (is_bullet_active)
-	{
-		const float speed = 1.5f;
-		
-		b_x = b_x + b_dir_x * speed;
-		b_y = b_y + b_dir_y * speed;
-		
-		int sx, sy;
-		getScreenSize(sx, sy);
-		
-		if (b_x < 0 || b_x > sx)
-			is_bullet_active = false;
-		
-		if (b_y < 0 || b_y > sy)
-			is_bullet_active = false;
-	}
-	if (is_bullet_active)
-	{
-		drawSprite(bullet_, (int)b_x - bs_w / 2, (int)b_y - bs_h / 2);
-	}
 	
 	if (enemies.size() != sNumEnemies)
 	{
@@ -459,8 +452,7 @@ bool Game::Tick() {
 			enemies.push_back(new Enemy(player_->pos, enemy_));
 	}
 	drawEvents();
-	
-	return should_exit;
+	return false;
 }
 
 void Game::onMouseMove(int x, int y, int xrelative, int yrelative)
@@ -474,41 +466,15 @@ void Game::onMouseMove(int x, int y, int xrelative, int yrelative)
 void Game::onMouseButtonClick(FRMouseButton button, bool isReleased)
 {
 	
-	float rx = (float)r_x;
-	float ry = (float)r_y;
-	if (button == FRMouseButton::LEFT && !isReleased)
+	if (button == FRMouseButton::LEFT && isReleased)
 	{
-		for (int i = 0; i < sNumEnemies; ++i)
-		{
-			if (!alive_[i])
-				continue;
-			
-			float x = (float)e_x[i];
-			float y = (float)e_y[i];
-			
-			float dist_sq = (rx - x)*(rx - x) + (ry - y)*(ry - y);
-			
-			if (dist_sq < 10 * 10)
-			{
-				alive_[i] = false;
-				continue;
-			}
-		}
+		if (bullets.size() == sNumAmmo)
+			bullets.erase(bullets.begin());
+		bullets.push_back(player_->shoot(Vector(last_mouse_x, last_mouse_y), bullet_));
 	}
-	
-	if (button == FRMouseButton::RIGHT && !isReleased)
+	if (button == FRMouseButton::RIGHT && isReleased)
 	{
-		b_x = (float)ava_pos_x;
-		b_y = (float)ava_pos_y;
-		b_dir_x = (float)(rx - b_x);
-		b_dir_y = (float)(ry - b_y);
-		
-		// normalize
-		float len = sqrtf(b_dir_x*b_dir_x + b_dir_y*b_dir_y);
-		b_dir_x = b_dir_x / len;
-		b_dir_y = b_dir_y / len;
-		
-		is_bullet_active = true;
+		std::cout << "RIGHT MOUSE CLICK" << std::endl;
 	}
 	
 }
@@ -523,14 +489,10 @@ void Game::onKeyReleased(FRKey k) {
 
 void Game::onKey(FRKey k)
 {
-	bool ev_check = false;
 	for (int i = 0; i < 4; i++)
 	{
 		if (GKeyState[i])
-		{
 			player_->movement(ObjectMove(i));
-			ev_check = true;
-		}
 	}
 	player_->movement(NOTHING);
 }

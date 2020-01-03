@@ -3,6 +3,7 @@
 #include "SpaceObject.hpp"
 #include "Framework.hpp"
 #include "Vector.hpp"
+#include "Bullet.hpp"
 
 #define GRID_0	0
 #define GRID_90 90
@@ -21,14 +22,15 @@ public:
 	~Player();
 
 public:
-	void	shoot();
+	Bullet* shoot(Vector const & mouse_pos, Sprite *bullet_sprite);
 	void	movement(ObjectMove);
-	void	takeDamage();
+	void	computeMouseDir(Vector const & mouse_pos);
 
 public:
 	Sprite*					_player;
 	Vector					_last_dir;
 	Vector					_mouse_dir;
+	float					_mouse_angle;
 };
 
 void getComputerCoord(Vector &lhs, double angle);

@@ -26,10 +26,15 @@ Enemy::~Enemy()
 
 void Enemy::movement(ObjectMove)
 {
-
-}
-
-void Enemy::takeDamage()
-{
-
+	angle = (angle > 360.0f) ? (0.0f) : (angle);
+	pos.x += dir.x * velocity;
+	pos.y += dir.y * velocity;
+	int sx, sy;
+	getScreenSize(sx, sy);
+	
+	pos.x = (pos.x > sx) ? (0) : (pos.x);
+	pos.y = (pos.y > sy) ? (0) : (pos.y);
+	
+	pos.x = (pos.x < 0) ? (sx) : (pos.x);
+	pos.y = (pos.y < 0) ? (sy) : (pos.y);
 }

@@ -13,7 +13,6 @@ public:
 	~Enemy();
 	
 	void	movement(ObjectMove);
-	void	takeDamage();
 
 public:
 	Sprite	*enemy_sprite;

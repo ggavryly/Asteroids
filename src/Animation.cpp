@@ -5,7 +5,7 @@ Animation::Animation(int sprite_count)
 	current_frame = 0;
 	max_frames = sprite_count;
 	frame_inc = 1;
-	frame_rate = 50;
+	frame_rate = 65;
 	old_time = 0;
 	oscillate = false;
 }

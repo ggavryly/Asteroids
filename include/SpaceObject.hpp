@@ -71,7 +71,6 @@ public:
 			return true;
 		return false;
 	}
-	virtual void	takeDamage() = 0;
 
 public:
 	Vector		pos;
