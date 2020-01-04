@@ -13,9 +13,9 @@ Animation::Animation(int sprite_count)
 Animation::~Animation()
 {}
 
-void Animation::animate(int pos_x, int pos_y, std::vector<Sprite *> & sprites)
+void Animation::animate(int pos_x, int pos_y, std::vector<std::unique_ptr<Sprite>> const & sprites)
 {
-	drawSprite(sprites[current_frame], pos_x, pos_y);
+	drawSprite(&(*sprites[current_frame]), pos_x, pos_y);
 	onAnimate();
 }
 

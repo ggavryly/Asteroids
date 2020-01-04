@@ -57,7 +57,7 @@ void Player::movement(ObjectMove m)
 		{
 			angle -= 1;
 			angle = (angle < 0.0f) ? (360.0f) : (angle);
-			dir = Vector(GRID_90 -  angle);
+			dir = Vector(GRID_90 -  angle, 0,0);
 			getComputerCoord(dir, angle);
 			break;
 		}
@@ -65,7 +65,7 @@ void Player::movement(ObjectMove m)
 		{
 			angle += 1;
 			angle = (angle > 360.0f) ? (0.0f) : (angle);
-			dir = Vector(GRID_90 - angle);
+			dir = Vector(GRID_90 - angle, 0,0);
 			getComputerCoord(dir, angle);
 			break;
 		}

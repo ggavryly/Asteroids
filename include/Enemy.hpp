@@ -6,7 +6,7 @@
 class Enemy : public SpaceObject
 {
 public:
-	Enemy(Vector &player_pos, Sprite *my_sprite);
+	Enemy(Vector const &player_pos, Sprite *my_sprite, bool is_big);
 	
 	Enemy(Vector const &big_asteroid_pos, Sprite *my_sprite, Vector const &big_asteroid_dir);
 	
@@ -17,7 +17,6 @@ public:
 	void	movement(ObjectMove);
 
 public:
-	Sprite	*enemy_sprite;
 	bool	is_big;
 };
 

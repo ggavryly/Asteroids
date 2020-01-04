@@ -15,7 +15,7 @@ public:
 public:
 	
 	void onAnimate();
-	void animate(int pos_x, int pos_y, std::vector<Sprite *> & sprites);
+	void animate(int pos_x, int pos_y, std::vector<std::unique_ptr<Sprite>> const &);
 	void setFrameRate(int Rate);
 	void setCurrentFrame(int Frame);
 	int getCurrentFrame();

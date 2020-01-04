@@ -4,7 +4,7 @@ Vector::Vector() : x(0), y(0)
 {}
 Vector::Vector(float x, float y) : x(x), y(y)
 {}
-Vector::Vector(float angle)
+Vector::Vector(float angle, bool, bool)
 {
 	this->x = cosf(angleToRadian(angle));
 	this->y = sinf(angleToRadian(angle));

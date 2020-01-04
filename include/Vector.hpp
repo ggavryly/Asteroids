@@ -17,7 +17,7 @@ struct Vector
 {
 	Vector();
 	Vector(float x, float y);
-	Vector(float angle);
+	Vector(float angle, bool, bool);
 	Vector(Vector const & rhs);
 	virtual ~Vector();
 	float	length() const;

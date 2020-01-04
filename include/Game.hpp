@@ -36,40 +36,37 @@ public:
 	void drawEvents();
 	Vector interpolateCoords(Vector const &xy0, Vector const &xy1);
 	const char* GetTitle() override;
-	void splitAsteroid(Vector const & pos);
+	void splitAsteroid(Vector const & pos, Vector const & dir);
 
 public:
 	InitOptions	*init_;
 private:
 	Player									*player_;
 	std::list<std::unique_ptr<SpaceObject>>	enemies;
-	std::vector<Sprite *>				explosion;
-	std::vector<EventExplosion>			events;
-	std::vector<Bullet *>				bullets;
-	Sprite*								ava_;
-	Sprite*								enemy_;
-	Sprite*								big_enemy_;
-	Sprite*								reticle_;
-	Sprite*								bullet_;
-	int 								as_w, as_h;
-	int 								es_w, es_h;
-	int 								rs_w, rs_h;
-	int 								bs_w, bs_h;
-	int									ex_w, ex_h;
+	std::vector<std::unique_ptr<Sprite>>	explosion;
+	std::vector<EventExplosion>				events;
+	std::vector<std::unique_ptr<Bullet>>	bullets;
+	Sprite*									ava_;
+	Sprite*									enemy_;
+	Sprite*									big_enemy_;
+	Sprite*									reticle_;
+	Sprite*									bullet_;
+	int 									as_w, as_h;
+	int 									es_w, es_h;
+	int 									rs_w, rs_h;
+	int 									bs_w, bs_h;
+	int										ex_w, ex_h;
 	
-	int 								r_x;
-	int 								r_y;
+	int 									r_x;
+	int 									r_y;
 	
-	int									ava_pos_x;
-	int									ava_pos_y;
+	int										ava_pos_x;
+	int										ava_pos_y;
 	
-	static const int					sNumEnemies = 5;
-	static const int					sNumAmmo = 5;
-	int									e_x[sNumEnemies];
-	int									e_y[sNumEnemies];
-	bool								alive_[sNumEnemies];
+	static const int						sNumEnemies = 5;
+	static const int						sNumAmmo = 5;
 	
-	int									last_mouse_x = 500;
-	int									last_mouse_y = 0;
+	int										last_mouse_x = 500;
+	int										last_mouse_y = 0;
 };
 
