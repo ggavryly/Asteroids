@@ -13,8 +13,6 @@ static SDL_Renderer *g_renderer;
 static int g_width = 800;
 static int g_height = 600;
 static int g_framework_initialized = false;
-static double g_angle = 0.0;
-static bool move = false;
 
 class Game : public Framework
 {
@@ -46,6 +44,7 @@ private:
 	std::vector<std::unique_ptr<Sprite>>	explosion;
 	std::vector<EventExplosion>				events;
 	std::vector<std::unique_ptr<Bullet>>	bullets;
+	std::vector<std::unique_ptr<Sprite>>	background;
 	Sprite*									ava_;
 	Sprite*									enemy_;
 	Sprite*									big_enemy_;

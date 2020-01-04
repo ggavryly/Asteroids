@@ -133,24 +133,20 @@ FRAMEWORK_API unsigned int getTickCount()
 
 
 /* Draw a Gimpish background pattern to show transparency in the image */
-static void draw_background(SDL_Renderer *renderer, int w, int h)
+FRAMEWORK_API static void drawBackground(std::vector<std::unique_ptr<Sprite>> const & background ,SDL_Renderer *renderer)
 {
-}
-
-
-FRAMEWORK_API void drawTestBackground()
-{
-	SDL_assert(g_framework_initialized);
-	SDL_assert(g_renderer);
-	
-	SDL_Rect viewport;
-	SDL_RenderGetViewport(g_renderer, &viewport);
-	return draw_background(g_renderer, viewport.w, viewport.h);
-}
-
-FRAMEWORK_API void showCursor(bool bShow)
-{
-	SDL_ShowCursor(bShow?1:0);
+	static Animation background_a(40);
+	SDL_Rect rect;
+	int sx, sy;
+	getScreenSize(sx, sy);
+	rect.w = sx;
+	rect.h = sy;
+	rect.x = 0;
+	rect.y = 0;
+	SDL_RenderCopy(g_renderer, background[background_a.current_frame]->tex, nullptr, &rect);
+	background_a.onAnimate();
+	if (background_a.current_frame == -1)
+		background_a.current_frame = 0;
 }
 
 bool GKeyState[(int)FRKey::COUNT] = {};
@@ -354,6 +350,8 @@ bool Game::Init()
 	bullet_ = createSprite("../data/bullet.png");
 	for (int j = 1; j < 14 + 1; j++)
 		explosion.emplace_back(createSprite(("../data/explosion-" + std::to_string(j) + ".png").c_str()));
+	for (int j = 1; j < 40 + 1; j++)
+		background.emplace_back(createSprite(("../data/background_frame-" + std::to_string(j) + ".png").c_str()));
 	
 	if (!reticle_ || !ava_ || ! enemy_ || !reticle_ || !bullet_)
 		return false;
@@ -391,6 +389,7 @@ void Game::unitsCollision()
 	{
 		if (player_->collision(**enemy)) // player and enemy's collsion
 		{
+			std::cout << "Game over player_collsion" << std::endl;
 			Game::Close();
 			exit(1);
 		}
@@ -432,7 +431,7 @@ void Game::splitAsteroid(Vector const & pos, Vector const & dir)
 
 bool Game::Tick() {
 	
-	drawTestBackground();
+	drawBackground(background, g_renderer);
 	
 	unitsCollision();
 	drawSpriteAngle(player_->sprite, player_->pos.x - as_w / 2,  player_->pos.y - as_h / 2, player_->angle);

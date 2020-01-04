@@ -20,7 +20,7 @@ public:
 	void setCurrentFrame(int Frame);
 	int getCurrentFrame();
 
-private:
+public:
 	int     				frame_rate;
 	long    				old_time;
 	int    					max_frames;
