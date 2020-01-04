@@ -149,6 +149,11 @@ FRAMEWORK_API static void drawBackground(std::vector<std::unique_ptr<Sprite>> co
 		background_a.current_frame = 0;
 }
 
+FRAMEWORK_API void showCursor(bool bShow)
+{
+	SDL_ShowCursor(bShow?1:0);
+}
+
 bool GKeyState[(int)FRKey::COUNT] = {};
 
 FRAMEWORK_API int run(Framework* framework)
@@ -343,15 +348,15 @@ bool Game::Init()
 	
 	showCursor(false);
 	
-	ava_ = createSprite("../data/spaceship.png");
-	enemy_ = createSprite("../data/small_asteroid.png");
-	big_enemy_ = createSprite("../data/big_asteroid.png");
-	reticle_ = createSprite("../data/circle.tga");
-	bullet_ = createSprite("../data/bullet.png");
+	ava_ = createSprite("data/spaceship.png");
+	enemy_ = createSprite("data/small_asteroid.png");
+	big_enemy_ = createSprite("data/big_asteroid.png");
+	reticle_ = createSprite("data/circle.tga");
+	bullet_ = createSprite("data/bullet.png");
 	for (int j = 1; j < 14 + 1; j++)
-		explosion.emplace_back(createSprite(("../data/explosion-" + std::to_string(j) + ".png").c_str()));
+		explosion.emplace_back(createSprite(("data/explosion-" + std::to_string(j) + ".png").c_str()));
 	for (int j = 1; j < 40 + 1; j++)
-		background.emplace_back(createSprite(("../data/background_frame-" + std::to_string(j) + ".png").c_str()));
+		background.emplace_back(createSprite(("data/background_frame-" + std::to_string(j) + ".png").c_str()));
 	
 	if (!reticle_ || !ava_ || ! enemy_ || !reticle_ || !bullet_)
 		return false;
