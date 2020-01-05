@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.7)
 project(Asteroids)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake_modules/")
+set(CMAKE_FRAMEWORK_PATH "./")
+message("${CMAKE_MODULE_PATH}" ----)
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "-std=c++11")
 set(SOURCE src/)
 set(INCLUDE include/)
 
